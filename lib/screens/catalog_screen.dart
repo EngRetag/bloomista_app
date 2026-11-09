@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bloomista_app/cart_provider.dart';
 
-// ProductCard widget to display product info and actions
+// ProductCard widget to display product info, discount badges, and action buttons
 class ProductCard extends StatelessWidget {
   final Map<String, dynamic> product;
   final Function(Map<String, dynamic>) onAddToCart;
@@ -17,6 +17,10 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if the product has a discount/sale
+    final bool isOnSale = product["onSale"] ?? false;
+    final int? oldPrice = product["oldPrice"];
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -26,14 +30,42 @@ class ProductCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Product image
+          // Stack to overlay the "SALE" badge over the product image
           GestureDetector(
             onTap: () => onViewDetails(product),
-            child: Image.asset(
-              product["image"],
-              width: 100,
-              height: 100,
-              fit: BoxFit.cover,
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.asset(
+                    product["image"],
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                // Display SALE badge if product is on sale
+                if (isOnSale)
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text(
+                        "SALE",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: 10),
@@ -43,23 +75,47 @@ class ProductCard extends StatelessWidget {
             product["name"],
             textAlign: TextAlign.center,
             style: const TextStyle(fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 5),
 
-          // Product price
-          Text(
-            "${product["price"]} EGP",
-            style: const TextStyle(color: Colors.pink),
+          // Product price section (displays old price with line-through if available)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (oldPrice != null) ...[
+                Text(
+                  "$oldPrice EGP",
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    decoration: TextDecoration.lineThrough,
+                  ),
+                ),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                "${product["price"]} EGP",
+                style: const TextStyle(
+                  color: Colors.pink,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 10),
 
-          // Add to Cart button
+          // Add to Cart button styled with requested padding and border radius
           ElevatedButton(
             onPressed: () => onAddToCart(product),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.pink,
+              foregroundColor: Colors.white, // Ensures crisp white text and icon color
+              padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(30),
               ),
             ),
             child: const Text("Add to Cart"),
@@ -70,6 +126,7 @@ class ProductCard extends StatelessWidget {
           OutlinedButton(
             onPressed: () => onViewDetails(product),
             style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.pink,
               side: const BorderSide(color: Colors.pink),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -83,50 +140,66 @@ class ProductCard extends StatelessWidget {
   }
 }
 
-// CatalogScreen with product list and cart functionality
+// CatalogScreen with product list, bottom navigation, and cart integration
 class CatalogScreen extends StatelessWidget {
   const CatalogScreen({super.key});
 
-  // Product list
-  final List<Map<String, dynamic>> products = const [
+  // Simplified static const list definition to prevent syntax parsing errors
+  static const products = [
     {
       "name": "Red Roses Bouquet",
       "price": 750,
+      "oldPrice": 850,
+      "onSale": true,
       "image": "assets/images/Red_Roses_Bouquet.png",
       "description": "A stunning bouquet of red roses, symbolizing love and passion."
     },
     {
       "name": "Blue Roses Bouquet",
-      "price": 600,
+      "price": 500,
+      "oldPrice": 550,
+      "onSale": true,
       "image": "assets/images/Blue_Roses_Bouquet.png",
       "description": "Elegant blue roses that represent mystery and uniqueness."
     },
     {
       "name": "Red & White Roses Bouquet",
-      "price": 650,
+      "price": 600,
+      "oldPrice": 630,
+      "onSale": true,
       "image": "assets/images/Red_White_Roses_Bouquet.png",
       "description": "A romantic mix of red and white roses, perfect for special occasions."
     },
     {
       "name": "Golden Roses Bouquet",
-      "price": 400,
+      "price": 300,
+      "oldPrice": 340,
+      "onSale": true,
       "image": "assets/images/Golden_Roses_Bouquet.png",
       "description": "Golden roses that shine with elegance and luxury."
     },
   ];
 
-  // Function to add product to cart using CartProvider
+  // Function to add product to cart and show a floating 2-second SnackBar
   void _addToCart(BuildContext context, Map<String, dynamic> product) {
     Provider.of<CartProvider>(context, listen: false).addToCart(product);
 
+    // Clear any existing active SnackBars immediately
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    // Display floating notification that automatically disappears after 2 seconds
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("${product["name"]} added to cart!"),
         backgroundColor: Colors.pink,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(bottom: 70, left: 15, right: 15),
         action: SnackBarAction(
           label: "Go to Cart",
           textColor: Colors.white,
           onPressed: () {
+            ScaffoldMessenger.of(context).clearSnackBars();
             Navigator.pushNamed(context, '/cart');
           },
         ),
@@ -146,12 +219,13 @@ class CatalogScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Catalog"),
         backgroundColor: Colors.pink,
+        foregroundColor: Colors.white,
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(20),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2 items per row
-          childAspectRatio: 0.8,
+          crossAxisCount: 2,
+          childAspectRatio: 0.62, // Adjusted ratio to comfortably accommodate padded buttons without layout overflow
           crossAxisSpacing: 15,
           mainAxisSpacing: 15,
         ),
@@ -166,6 +240,7 @@ class CatalogScreen extends StatelessWidget {
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
         selectedItemColor: Colors.pink,
         unselectedItemColor: Colors.grey,
         onTap: (index) {

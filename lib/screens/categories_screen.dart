@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
 
-  final List<Map<String, dynamic>> categories = const [
+  // Static const category items to prevent immutability linter issues
+  static const categories = [
     {"icon": Icons.favorite, "name": "Anniversary"},
     {"icon": Icons.cake, "name": "Birthday"},
     {"icon": Icons.sentiment_satisfied, "name": "Apology"},
@@ -17,35 +18,63 @@ class CategoriesScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Categories"),
         backgroundColor: Colors.pink,
+        foregroundColor: Colors.white, // Guarantees white title and back icon color
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(20),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 1,
+          childAspectRatio: 0.7, // Adjusted ratio to fit icon, title, and padded button smoothly
           crossAxisSpacing: 15,
           mainAxisSpacing: 15,
         ),
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final category = categories[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, '/catalog');
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(category["icon"], size: 50, color: Colors.pink),
-                  const SizedBox(height: 10),
-                  Text(category["name"]),
-                ],
-              ),
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(category["icon"] as IconData, size: 45, color: Colors.pink),
+                const SizedBox(height: 8),
+                Text(
+                  category["name"] as String,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                // Explore Category Button styled with merged contrast and border radius
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/catalog');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink,
+                      foregroundColor: Colors.white, // Guarantees clear white text color
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: const Text(
+                      "Explore",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         },

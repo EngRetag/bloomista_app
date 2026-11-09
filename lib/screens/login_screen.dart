@@ -28,9 +28,11 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         title: const Text("Login"),
         backgroundColor: Colors.pink,
+        foregroundColor: Colors.white, // Guarantees white text on AppBar
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          // Prevents layout overflow when keyboard opens
           padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey, // Attach form key
@@ -120,25 +122,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 25),
 
-                // Login Button with validation check
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // If validation passes, mark user as logged in
-                      setState(() {
-                        _isLoggedIn = true;
-                      });
-                      Navigator.pushNamed(context, '/catalog');
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pink,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                // Login Button with validation check & integrated white text styling
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        // If validation passes, mark user as logged in
+                        setState(() {
+                          _isLoggedIn = true;
+                        });
+                        Navigator.pushNamed(context, '/catalog');
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink,
+                      foregroundColor: Colors.white, // Guarantees clear white text
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
+                    child: const Text("Login"),
                   ),
-                  child: const Text("Login"),
                 ),
 
                 // Forgot Password

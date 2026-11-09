@@ -114,6 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: const Text("My Profile"),
         backgroundColor: Colors.pink,
+        foregroundColor: Colors.white, // Guarantees white text and back icon color
       ),
       body: SafeArea(
         child: Column(
@@ -157,103 +158,112 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     topRight: Radius.circular(35),
                   ),
                 ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      // Name field
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(
-                          hintText: "Full Name",
-                          filled: true,
-                          fillColor: Color(0xFFF7F7F7),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "Name cannot be empty. Please enter your full name.";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 15),
-
-                      // Email field
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          hintText: "Email Address",
-                          filled: true,
-                          fillColor: Color(0xFFF7F7F7),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "Email is required.";
-                          }
-                          if (!_isValidEmail(value.trim())) {
-                            return "Invalid email format. Example: user@example.com";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 15),
-
-                      // Phone field
-                      TextFormField(
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        decoration: const InputDecoration(
-                          hintText: "Phone Number",
-                          filled: true,
-                          fillColor: Color(0xFFF7F7F7),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "Phone number is required.";
-                          }
-                          if (!_isValidPhone(value.trim())) {
-                            return "Invalid phone number. Must be at least 10 digits.";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 35),
-
-                      // Save button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              await _saveProfileData(); // Save data permanently
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Changes Saved!")),
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.pink,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        // Name field
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(
+                            hintText: "Full Name",
+                            filled: true,
+                            fillColor: Color(0xFFF7F7F7),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                              borderSide: BorderSide.none,
                             ),
                           ),
-                          child: const Text("Save Changes"),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Name cannot be empty. Please enter your full name.";
+                            }
+                            return null;
+                          },
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 15),
+
+                        // Email field
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
+                            hintText: "Email Address",
+                            filled: true,
+                            fillColor: Color(0xFFF7F7F7),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Email is required.";
+                            }
+                            if (!_isValidEmail(value.trim())) {
+                              return "Invalid email format. Example: user@example.com";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 15),
+
+                        // Phone field
+                        TextFormField(
+                          controller: _phoneController,
+                          keyboardType: TextInputType.phone,
+                          decoration: const InputDecoration(
+                            hintText: "Phone Number",
+                            filled: true,
+                            fillColor: Color(0xFFF7F7F7),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Phone number is required.";
+                            }
+                            if (!_isValidPhone(value.trim())) {
+                              return "Invalid phone number. Must be at least 10 digits.";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 35),
+
+                        // Save button styled with merged white text and custom button styling
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                await _saveProfileData(); // Save data permanently
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Changes Saved!")),
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.pink,
+                              foregroundColor: Colors.white, // Guarantees clear white text color
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: const Text(
+                              "Save Changes",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

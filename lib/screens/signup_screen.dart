@@ -28,9 +28,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       appBar: AppBar(
         title: const Text("Sign Up"),
         backgroundColor: Colors.pink,
+        foregroundColor: Colors.white, // Ensures white text and back icon color
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          // Prevents bottom overflow error when the keyboard appears
           padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey, // Attach form key
@@ -142,22 +144,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 25),
 
-                // Create Account Button with validation check
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // If validation passes, navigate to catalog
-                      Navigator.pushNamed(context, '/catalog');
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.pink,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                // Create Account Button with full width and high-contrast white text
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        // If validation passes, navigate to catalog
+                        Navigator.pushNamed(context, '/catalog');
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink,
+                      foregroundColor: Colors.white, // Guarantees clear white text
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: const Text(
+                      "Create Account",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  child: const Text("Create Account"),
                 ),
 
                 // Already have an account? Log in

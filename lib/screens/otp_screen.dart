@@ -14,12 +14,17 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Enter OTP"), backgroundColor: Colors.pink),
+      backgroundColor: const Color(0xFFFDECEF),
+      appBar: AppBar(
+        title: const Text("Enter OTP"),
+        backgroundColor: Colors.pink,
+        foregroundColor: Colors.white, // Guarantees white title and back button
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const Text("We sent you a 4-digit code"),
+            Text("We sent you a 4-digit code to ${widget.email}"),
             const SizedBox(height: 20),
             TextField(
               controller: _otpController,
@@ -30,18 +35,34 @@ class _OtpScreenState extends State<OtpScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                if (_otpController.text == "1234") { // temporary check
-                  Navigator.pushNamed(context, '/createPassword');
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Invalid OTP")),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.pink),
-              child: const Text("Verify"),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_otpController.text == "1234") { // Temporary validation check
+                    Navigator.pushNamed(context, '/createPassword');
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Invalid OTP")),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pink,
+                  foregroundColor: Colors.white, // Guarantees clear white text color
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  "Verify",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
