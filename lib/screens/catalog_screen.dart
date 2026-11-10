@@ -2,6 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bloomista_app/cart_provider.dart';
 
+// Helper function to display a floating SnackBar notification that auto-dismisses after 2 seconds
+void showAddToCartSnackBar(BuildContext context, String productName) {
+  // 1. Clear any active SnackBars immediately to prevent queuing
+  ScaffoldMessenger.of(context).clearSnackBars();
+
+  // 2. Display the floating SnackBar notification above screen elements
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      duration: const Duration(seconds: 2), // Auto-dismisses after 2 seconds
+      behavior: SnackBarBehavior.floating,  // Floats above bottom navigation and buttons
+      margin: const EdgeInsets.only(bottom: 20, left: 15, right: 15),
+      backgroundColor: Colors.pink,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              "$productName added to cart!",
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              Navigator.pushNamed(context, '/cart');
+            },
+            child: const Text(
+              "Go to Cart",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 // ProductCard widget to display product info, discount badges, and action buttons
 class ProductCard extends StatelessWidget {
   final Map<String, dynamic> product;
@@ -144,7 +189,7 @@ class ProductCard extends StatelessWidget {
 class CatalogScreen extends StatelessWidget {
   const CatalogScreen({super.key});
 
-  // Simplified static const list definition to prevent syntax parsing errors
+  // Static const product list definition
   static const products = [
     {
       "name": "Red Roses Bouquet",
@@ -180,31 +225,10 @@ class CatalogScreen extends StatelessWidget {
     },
   ];
 
-  // Function to add product to cart and show a floating 2-second SnackBar
+  // Function to handle adding product to cart and triggering the temporary notification
   void _addToCart(BuildContext context, Map<String, dynamic> product) {
     Provider.of<CartProvider>(context, listen: false).addToCart(product);
-
-    // Clear any existing active SnackBars immediately
-    ScaffoldMessenger.of(context).clearSnackBars();
-
-    // Display floating notification that automatically disappears after 2 seconds
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("${product["name"]} added to cart!"),
-        backgroundColor: Colors.pink,
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.only(bottom: 70, left: 15, right: 15),
-        action: SnackBarAction(
-          label: "Go to Cart",
-          textColor: Colors.white,
-          onPressed: () {
-            ScaffoldMessenger.of(context).clearSnackBars();
-            Navigator.pushNamed(context, '/cart');
-          },
-        ),
-      ),
-    );
+    showAddToCartSnackBar(context, product["name"]);
   }
 
   // Function to view product details

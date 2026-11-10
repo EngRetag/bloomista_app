@@ -2,6 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bloomista_app/cart_provider.dart';
 
+// Helper function to display a floating SnackBar notification that auto-dismisses after 2 seconds
+void showAddToCartSnackBar(BuildContext context, String productName) {
+  // 1. Clear any active SnackBars immediately to prevent queuing
+  ScaffoldMessenger.of(context).clearSnackBars();
+
+  // 2. Display the floating SnackBar notification above screen elements
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      duration: const Duration(seconds: 2), // Auto-dismisses after 2 seconds
+      behavior: SnackBarBehavior.floating,  // Floats above bottom navigation and buttons
+      margin: const EdgeInsets.only(bottom: 20, left: 15, right: 15),
+      backgroundColor: Colors.pink,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              "$productName added to cart!",
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              Navigator.pushNamed(context, '/cart');
+            },
+            child: const Text(
+              "Go to Cart",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 /// ProductDetailsScreen:
 /// Displays details of a single product (image, name, price, description)
 /// and provides an "Add to Cart" button with styled feedback.
@@ -53,34 +98,15 @@ class ProductDetailsScreen extends StatelessWidget {
 
             const Spacer(),
 
-            // Add to Cart button with white text styling and updated SnackBar logic
+            // Add to Cart button styled with pill shape and 2-second floating SnackBar
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Add product to CartProvider
+                  // Add product to CartProvider state
                   Provider.of<CartProvider>(context, listen: false).addToCart(product);
-
-                  // Clear any existing active SnackBars immediately
-                  ScaffoldMessenger.of(context).clearSnackBars();
-
-                  // Show floating confirmation SnackBar for 2 seconds
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("${product["name"]} added to cart!"),
-                      backgroundColor: Colors.pink,
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      action: SnackBarAction(
-                        label: "Go to Cart",
-                        textColor: Colors.white,
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).clearSnackBars();
-                          Navigator.pushNamed(context, '/cart');
-                        },
-                      ),
-                    ),
-                  );
+                  // Trigger floating 2-second notification SnackBar
+                  showAddToCartSnackBar(context, product["name"]);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.pink,
