@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../cart_provider.dart'; // Updated relative path (or use: import 'package:bloomista_app/cart_provider.dart';)
+import 'package:bloomista_app/cart_provider.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -57,7 +57,7 @@ class CartScreen extends StatelessWidget {
                               // Name and price inside Expanded to prevent vertical text compression
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start, // Fixed: CrossAxisAlignment instead of CrossAlignment
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       item["name"] ?? "",
@@ -167,7 +167,10 @@ class CartScreen extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // Navigate to checkout screen route
+                            Navigator.pushNamed(context, '/checkout');
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.pink,
                             foregroundColor: Colors.white,
