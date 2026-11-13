@@ -249,7 +249,7 @@ class CatalogScreen extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.62, // Adjusted ratio to comfortably accommodate padded buttons without layout overflow
+          childAspectRatio: 0.56, // Adjusted ratio to comfortably accommodate padded buttons without layout overflow
           crossAxisSpacing: 15,
           mainAxisSpacing: 15,
         ),

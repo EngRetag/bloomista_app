@@ -1,7 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,14 +12,26 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   File? _image;
-  bool _showCameraIcon = true;
-
   final _formKey = GlobalKey<FormState>();
 
   // Controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   // Email validation
   bool _isValidEmail(String email) {
@@ -33,15 +45,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return phoneRegex.hasMatch(phone);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _loadProfileData();
-  }
-
   // Load saved data (name, email, phone, image path)
   Future<void> _loadProfileData() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+
     setState(() {
       _nameController.text = prefs.getString("name") ?? "";
       _emailController.text = prefs.getString("email") ?? "";
@@ -49,8 +57,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       final imagePath = prefs.getString("profileImage");
       if (imagePath != null && imagePath.isNotEmpty) {
-        _image = File(imagePath);
-        _showCameraIcon = false;
+        final file = File(imagePath);
+        if (file.existsSync()) {
+          _image = file;
+        }
       }
     });
   }
@@ -95,9 +105,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
 
       if (pickedFile != null) {
+        if (!mounted) return;
         setState(() {
           _image = File(pickedFile.path);
-          _showCameraIcon = false;
         });
 
         // Save image path permanently
@@ -114,14 +124,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: const Text("My Profile"),
         backgroundColor: Colors.pink,
-        foregroundColor: Colors.white, // Guarantees white text and back icon color
+        foregroundColor: Colors.white,
       ),
       body: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: 20),
 
-            // Profile image with camera icon
+            // Profile image with camera icon always available to update photo
             Stack(
               alignment: Alignment.center,
               children: [
@@ -133,15 +143,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ? const Icon(Icons.person, size: 55, color: Colors.pink)
                       : null,
                 ),
-                if (_showCameraIcon)
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colors.white,
                     child: IconButton(
-                      icon: const Icon(Icons.camera_alt, color: Colors.pink),
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.camera_alt, color: Colors.pink, size: 20),
                       onPressed: _pickImage,
                     ),
                   ),
+                ),
               ],
             ),
 
@@ -187,6 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         // Email field
                         TextFormField(
                           controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
                             hintText: "Email Address",
                             filled: true,
@@ -233,13 +248,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 35),
 
-                        // Save button styled with merged white text and custom button styling
+                        // Save button
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                await _saveProfileData(); // Save data permanently
+                                await _saveProfileData();
+                                if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text("Changes Saved!")),
                                 );
@@ -247,7 +263,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.pink,
-                              foregroundColor: Colors.white, // Guarantees clear white text color
+                              foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),

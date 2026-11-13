@@ -12,59 +12,72 @@ class _OtpScreenState extends State<OtpScreen> {
   final TextEditingController _otpController = TextEditingController();
 
   @override
+  void dispose() {
+    _otpController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDECEF),
       appBar: AppBar(
         title: const Text("Enter OTP"),
         backgroundColor: Colors.pink,
-        foregroundColor: Colors.white, // Guarantees white title and back button
+        foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Text("We sent you a 4-digit code to ${widget.email}"),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _otpController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                hintText: "Enter OTP",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (_otpController.text == "1234") { // Temporary validation check
-                    Navigator.pushNamed(context, '/createPassword');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Invalid OTP")),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink,
-                  foregroundColor: Colors.white, // Guarantees clear white text color
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: const Text(
-                  "Verify",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Text("We sent you a 4-digit code to ${widget.email}"),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _otpController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  hintText: "Enter OTP",
+                  filled: true,
+                  fillColor: Color(0xFFF7F7F7),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_otpController.text == "1234") {
+                      Navigator.pushNamed(context, '/createPassword');
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Invalid OTP")),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pink,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text(
+                    "Verify",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+// TODO: Uncomment the line below once Supabase backend is configured
+// import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,11 +17,75 @@ class _LoginScreenState extends State<LoginScreen> {
   // Form key for validation
   final _formKey = GlobalKey<FormState>();
 
-  // Variable to control password visibility
+  // Variables to control password visibility, login state, and loading state
   bool _isPasswordVisible = false;
-
-  // Track login state
   bool _isLoggedIn = false;
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    // Dispose controllers to prevent memory leaks
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  // Email format validation helper
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    return emailRegex.hasMatch(email);
+  }
+
+  // Handle user login
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // =====================================================================
+      // TODO: Uncomment this block when your Supabase project is ready
+      // =====================================================================
+      /*
+      final response = await Supabase.instance.client.auth.signInWithPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      if (response.user != null) {
+        setState(() {
+          _isLoggedIn = true;
+        });
+        Navigator.pushReplacementNamed(context, '/catalog');
+      }
+      return;
+      */
+
+      // Temporary local login until Supabase backend is connected
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (!mounted) return;
+
+      setState(() {
+        _isLoggedIn = true;
+      });
+      Navigator.pushReplacementNamed(context, '/catalog');
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Login failed: $error")),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // Prevents layout overflow when keyboard opens
           padding: const EdgeInsets.all(20),
           child: Form(
-            key: _formKey, // Attach form key
+            key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -59,9 +125,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text("Where flowers have dreams :)"),
                 const SizedBox(height: 20),
 
-                // Email Field with validation
+                // Email field with validation
                 TextFormField(
                   controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     hintText: "Email",
                     filled: true,
@@ -70,25 +138,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(20),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 18,
+                    ),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
+                    if (value == null || value.trim().isEmpty) {
                       return "Please enter your email";
                     }
-                    if (!value.contains("@")) {
+                    if (!_isValidEmail(value.trim())) {
                       return "Enter a valid email";
                     }
                     return null;
                   },
-                  textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 15),
 
-                // Password Field with eye icon and validation
+                // Password field with visibility toggle and validation
                 TextFormField(
                   controller: _passwordController,
                   obscureText: !_isPasswordVisible,
+                  textInputAction: TextInputAction.done,
                   decoration: InputDecoration(
                     hintText: "Password",
                     filled: true,
@@ -97,10 +168,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(20),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 18,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color: Colors.pink,
                       ),
                       onPressed: () {
@@ -122,19 +198,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 25),
 
-                // Login Button with validation check & integrated white text styling
+                // Login button with loading indicator
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // If validation passes, mark user as logged in
-                        setState(() {
-                          _isLoggedIn = true;
-                        });
-                        Navigator.pushNamed(context, '/catalog');
-                      }
-                    },
+                    onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.pink,
                       foregroundColor: Colors.white, // Guarantees clear white text
@@ -143,16 +211,40 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text("Login"),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            "Login",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
+                const SizedBox(height: 10),
 
-                // Forgot Password
+                // Navigate to Forgot Password screen
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/forgotPassword');
                   },
                   child: const Text("Forgot password?"),
+                ),
+
+                // Navigate to Sign Up screen
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/signup');
+                  },
+                  child: const Text("Don't have an account? Sign Up"),
                 ),
               ],
             ),
@@ -170,12 +262,12 @@ class _LoginScreenState extends State<LoginScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Please login first")),
             );
-            return; // Prevent navigation
+            return; // Prevent navigation before login
           }
-          if (index == 0) Navigator.pushNamed(context, '/catalog');
-          if (index == 1) Navigator.pushNamed(context, '/categories');
-          if (index == 2) Navigator.pushNamed(context, '/cart');
-          if (index == 3) Navigator.pushNamed(context, '/profile');
+          if (index == 0) Navigator.pushReplacementNamed(context, '/catalog');
+          if (index == 1) Navigator.pushReplacementNamed(context, '/categories');
+          if (index == 2) Navigator.pushReplacementNamed(context, '/cart');
+          if (index == 3) Navigator.pushReplacementNamed(context, '/profile');
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),

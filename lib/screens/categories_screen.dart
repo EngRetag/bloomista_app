@@ -1,50 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Helper function to display a floating SnackBar notification that auto-dismisses after 2 seconds
-void showAddToCartSnackBar(BuildContext context, String productName) {
-  // 1. Clear any active SnackBars immediately to prevent queuing
-  ScaffoldMessenger.of(context).clearSnackBars();
-
-  // 2. Display the floating SnackBar notification above screen elements
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      duration: const Duration(seconds: 2), // Auto-dismisses after 2 seconds
-      behavior: SnackBarBehavior.floating,  // Floats above bottom navigation and buttons
-      margin: const EdgeInsets.only(bottom: 20, left: 15, right: 15),
-      backgroundColor: Colors.pink,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      content: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              "$productName added to cart!",
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              Navigator.pushNamed(context, '/cart');
-            },
-            child: const Text(
-              "Go to Cart",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
 
@@ -63,13 +18,13 @@ class CategoriesScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Categories"),
         backgroundColor: Colors.pink,
-        foregroundColor: Colors.white, // Guarantees white title and back icon color
+        foregroundColor: Colors.white,
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(20),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.75, // Adjusted ratio to fit icon, title, and padded button smoothly
+          childAspectRatio: 0.75,
           crossAxisSpacing: 15,
           mainAxisSpacing: 15,
         ),
@@ -95,18 +50,17 @@ class CategoriesScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                
-                // Explore Category button styled with unified pink contrast and rounded borders
+
+                // Explore Category button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Navigate to catalog screen for selected category
-                      Navigator.pushNamed(context, '/catalog');
+                      Navigator.pushReplacementNamed(context, '/catalog');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.pink,
-                      foregroundColor: Colors.white, // Guarantees clear white text color
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
@@ -135,9 +89,10 @@ class CategoriesScreen extends StatelessWidget {
       selectedItemColor: Colors.pink,
       unselectedItemColor: Colors.grey,
       onTap: (index) {
-        if (index == 0) Navigator.pushNamed(context, '/catalog');
-        if (index == 1) Navigator.pushNamed(context, '/categories');
-        if (index == 2) Navigator.pushNamed(context, '/cart');
+        if (index == currentIndex) return;
+        if (index == 0) Navigator.pushReplacementNamed(context, '/catalog');
+        if (index == 1) Navigator.pushReplacementNamed(context, '/categories');
+        if (index == 2) Navigator.pushReplacementNamed(context, '/cart');
         if (index == 3) Navigator.pushNamed(context, '/profile');
       },
       items: const [

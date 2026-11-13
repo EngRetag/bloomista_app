@@ -4,10 +4,9 @@ import 'dart:math'; // For generating random order number
 class ThankYouScreen extends StatelessWidget {
   const ThankYouScreen({super.key});
 
-  // Function to generate random order number
+  // Function to generate a random 8-digit order number
   String _generateOrderNumber() {
     final random = Random();
-    // Generate a random 8-digit number
     int orderNumber = 10000000 + random.nextInt(90000000);
     return orderNumber.toString();
   }
@@ -21,6 +20,7 @@ class ThankYouScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Order Confirmation"),
         backgroundColor: Colors.pink,
+        foregroundColor: Colors.white, // Ensures title and back icon are white
       ),
       body: Center(
         child: Column(
@@ -53,16 +53,25 @@ class ThankYouScreen extends StatelessWidget {
             // Back to Home Button
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/catalog');
+                // Navigate back to catalog and clear previous navigation stack
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/catalog',
+                  (route) => false,
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pink,
+                foregroundColor: Colors.white, // Ensures button text is white
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 30),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text("Back to Home"),
+              child: const Text(
+                "Back to Home",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),

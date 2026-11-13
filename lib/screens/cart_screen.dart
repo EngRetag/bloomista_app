@@ -168,8 +168,10 @@ class CartScreen extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            // Navigate to checkout screen route
-                            Navigator.pushNamed(context, '/checkout');
+                            // Clear cart items after order confirmation
+                            cartProvider.clearCart();
+                            // Navigate to checkout/thank you screen and replace cart screen
+                            Navigator.pushReplacementNamed(context, '/checkout');
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.pink,
@@ -194,6 +196,7 @@ class CartScreen extends StatelessWidget {
     );
   }
 
+  // Build bottom navigation bar
   BottomNavigationBar buildBottomNav(BuildContext context, int currentIndex) {
     return BottomNavigationBar(
       currentIndex: currentIndex,
